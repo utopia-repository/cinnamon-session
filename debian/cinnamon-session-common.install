@@ -1,4 +1,4 @@
+debian/55cinnamon-session_gnomerc etc/X11/Xsession.d
 usr/share/applications/cinnamon-session-*
 usr/share/icons/*/*/*/cinnamon-session-*
 usr/share/locale/*/*/cinnamon-session*.mo
-debian/55cinnamon-session_gnomerc etc/X11/Xsession.d
