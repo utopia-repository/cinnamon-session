@@ -1,0 +1,3 @@
+version=3
+opts="filenamemangle=s/.*\/(.*)/cinnamon-session-$1/" \
+    https://github.com/linuxmint/cinnamon-session/tags .*/(\d.*)\.(?:tgz|tar\.(?:gz|bz2|xz))
