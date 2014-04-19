@@ -1,5 +1,9 @@
-cinnamon-session (2.0.6-1~) UNRELEASED; urgency=medium
+cinnamon-session (2.2.0-1) UNRELEASED; urgency=medium
 
+  [ Maximiliano Curia ]
   * Initial release.
 
- -- Maximiliano Curia <maxy@debian.org>  Fri, 21 Feb 2014 14:57:11 +0100
+  [ Margarita Manterola ]
+  * Updated to version 2.2.0
+
+ -- Margarita Manterola <marga@debian.org>  Sat, 19 Apr 2014 20:27:26 +0200
