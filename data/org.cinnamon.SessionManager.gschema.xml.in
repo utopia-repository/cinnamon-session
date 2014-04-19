@@ -1,0 +1,28 @@
+<schemalist gettext-domain="cinnamon-session-3.0">
+  <schema id="org.cinnamon.SessionManager" path="/org/cinnamon/cinnamon-session/">
+    <key name="auto-save-session" type="b">
+      <default>false</default>
+      <summary>Save sessions</summary>
+      <description>If enabled, cinnamon-session will save the session automatically.</description>
+    </key>
+    <key name="logout-prompt" type="b">
+      <default>true</default>
+      <summary>Logout prompt</summary>
+      <description>If enabled, cinnamon-session will prompt the user before ending a session.</description>
+    </key>
+    <key name="show-fallback-warning" type="b">
+      <default>true</default>
+      <summary>Show the fallback warning</summary>
+      <description>If enabled, cinnamon-session will display a warning dialog after login if the session was automatically fallen back.</description>
+    </key>
+    <key name="blacklist" type="as">
+      <default>['nautilus-autostart', 'caja']</default>
+      <summary>Applications to block from autostarting or appearing in the app system</summary>
+      <description>
+        A list of applications or desktop names (without the .desktop extension) to prevent from
+        being accessible during the session.  Note: gnome-settings-daemon, gnome-fallback-mount-helper,
+        nautilus, and gnome-screensaver are hardcoded.  This list can add to those.
+      </description>
+    </key>
+  </schema>
+</schemalist>
