@@ -1,4 +1,4 @@
-cinnamon-session (2.2.0-1) UNRELEASED; urgency=medium
+cinnamon-session (2.2.0-1~) UNRELEASED; urgency=medium
 
   [ Maximiliano Curia ]
   * Initial release (Closes: #745914).
