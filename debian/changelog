@@ -1,7 +1,7 @@
 cinnamon-session (2.2.0-1) UNRELEASED; urgency=medium
 
   [ Maximiliano Curia ]
-  * Initial release.
+  * Initial release (Closes: #745914).
 
   [ Margarita Manterola ]
   * Updated to version 2.2.0
