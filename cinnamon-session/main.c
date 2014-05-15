@@ -230,9 +230,10 @@ shutdown_cb (gpointer data)
          * applications in the off chance a handler is already queued
          * to dispatch following the below call to gtk_main_quit.
          */
-        csm_manager_set_phase (manager, CSM_MANAGER_PHASE_EXIT);
-
-        gtk_main_quit ();
+        if (manager) {
+            csm_manager_set_phase (manager, CSM_MANAGER_PHASE_EXIT);
+            gtk_main_quit ();
+        }
 }
 
 static gboolean
@@ -347,7 +348,6 @@ main (int argc, char **argv)
          * detect if GNOME is running. We keep this for compatibility reasons.
          */
         csm_util_setenv ("GNOME_DESKTOP_SESSION_ID", "this-is-deprecated");
-        csm_util_setenv ("CLUTTER_DISABLE_XINPUT", "1");
 
         client_store = csm_store_new ();
 
