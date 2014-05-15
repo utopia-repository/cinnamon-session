@@ -40,6 +40,8 @@
 
 #include <gtk/gtk.h> /* for logout dialog */
 
+#include <canberra.h>
+
 #include "csm-manager.h"
 #include "csm-manager-glue.h"
 
@@ -78,6 +80,9 @@
 
 #define MDM_FLEXISERVER_COMMAND "mdmflexiserver"
 #define MDM_FLEXISERVER_ARGS    "--startnew Standard"
+
+#define GDM_FLEXISERVER_COMMAND "gdmflexiserver"
+#define GDM_FLEXISERVER_ARGS    "--startnew Standard"
 
 #define SESSION_SCHEMA            "org.cinnamon.desktop.session"
 #define KEY_IDLE_DELAY            "idle-delay"
@@ -160,6 +165,9 @@ struct CsmManagerPrivate
         DBusGConnection        *connection;
         gboolean                dbus_disconnected : 1;
 
+        ca_context             *ca;
+        gboolean               *logout_sound_is_playing;
+
 };
 
 enum {
@@ -188,6 +196,7 @@ static void     csm_manager_init        (CsmManager      *manager);
 static void     csm_manager_finalize    (GObject         *object);
 
 static void     maybe_save_session   (CsmManager *manager);
+static void     maybe_play_logout_sound (CsmManager *manager);
 
 static gboolean _log_out_is_locked_down     (CsmManager *manager);
 static gboolean _switch_user_is_locked_down (CsmManager *manager);
@@ -451,16 +460,13 @@ phase_num_to_name (guint phase)
 static void start_phase (CsmManager *manager);
 
 static void
-quit_request_completed (CsmSystem *system,
+quit_request_failed (CsmSystem *system,
                         GError    *error,
                         gpointer   user_data)
 {
+        g_warning ("Using an MDM logout action to shutdown/reboot the system.");
         MdmLogoutAction fallback_action = GPOINTER_TO_INT (user_data);
-
-        if (error != NULL) {
-                mdm_set_logout_action (fallback_action);
-        }
-
+        mdm_set_logout_action (fallback_action);
         gtk_main_quit ();
 }
 
@@ -476,12 +482,12 @@ csm_manager_quit (CsmManager *manager)
                 break;
         case CSM_MANAGER_LOGOUT_REBOOT:
         case CSM_MANAGER_LOGOUT_REBOOT_INTERACT:
+                g_warning ("Requesting system restart...");
                 mdm_set_logout_action (MDM_LOGOUT_ACTION_NONE);
-
                 g_signal_connect (manager->priv->system,
-                                  "request-completed",
-                                  G_CALLBACK (quit_request_completed),
-                                  GINT_TO_POINTER (MDM_LOGOUT_ACTION_NONE));
+                                  "request-failed",
+                                  G_CALLBACK (quit_request_failed),
+                                  GINT_TO_POINTER (MDM_LOGOUT_ACTION_REBOOT));
                 csm_system_attempt_restart (manager->priv->system);
                 break;
         case CSM_MANAGER_LOGOUT_REBOOT_MDM:
@@ -489,13 +495,13 @@ csm_manager_quit (CsmManager *manager)
                 gtk_main_quit ();
                 break;
         case CSM_MANAGER_LOGOUT_SHUTDOWN:
-        case CSM_MANAGER_LOGOUT_SHUTDOWN_INTERACT:
+        case CSM_MANAGER_LOGOUT_SHUTDOWN_INTERACT:  
+                g_warning ("Requesting system shutdown...");
                 mdm_set_logout_action (MDM_LOGOUT_ACTION_NONE);
-
                 g_signal_connect (manager->priv->system,
-                                  "request-completed",
-                                  G_CALLBACK (quit_request_completed),
-                                  GINT_TO_POINTER (MDM_LOGOUT_ACTION_NONE));
+                                  "request-failed",
+                                  G_CALLBACK (quit_request_failed),
+                                  GINT_TO_POINTER (MDM_LOGOUT_ACTION_SHUTDOWN));
                 csm_system_attempt_stop (manager->priv->system);
                 break;
         case CSM_MANAGER_LOGOUT_SHUTDOWN_MDM:
@@ -551,6 +557,7 @@ end_phase (CsmManager *manager)
         case CSM_MANAGER_PHASE_QUERY_END_SESSION:
                 break;
         case CSM_MANAGER_PHASE_END_SESSION:
+                maybe_play_logout_sound (manager);
                 maybe_save_session (manager);
                 break;
         case CSM_MANAGER_PHASE_EXIT:
@@ -1100,17 +1107,16 @@ cancel_end_session (CsmManager *manager)
 static gboolean
 process_is_running (const char * name)
 {
-    int num_processes;
-    char * command = g_strdup_printf ("pidof %s | wc -l", name);
-    FILE *fp = popen(command, "r");
-    fscanf(fp, "%d", &num_processes);
-    pclose(fp);
-    if (num_processes > 0) {
-        return TRUE;
-    }
-    else {
-        return FALSE;
-    }
+        int num_processes;
+        char * command = g_strdup_printf ("pidof %s | wc -l", name);
+        FILE *fp = popen(command, "r");
+        fscanf(fp, "%d", &num_processes);
+        pclose(fp);
+        if (num_processes > 0) {
+                return TRUE;
+        } else {
+                return FALSE;
+        }
 }
 
 static gboolean
@@ -1149,69 +1155,86 @@ manager_switch_user (GdkDisplay *display,
         GAppLaunchContext *context;
         GAppInfo *app;
 
-    /* We have to do this here and in request_switch_user() because this
-     * function can be called at a later time, not just directly after
-     * request_switch_user(). */
-    if (_switch_user_is_locked_down (manager)) {
-        g_warning ("Unable to switch user: User switching has been locked down");
-        return;
-    }
-    
-    if (process_is_running("mdm")) {
-            command = g_strdup_printf ("%s %s",
-                                       MDM_FLEXISERVER_COMMAND,
-                                       MDM_FLEXISERVER_ARGS);
+        /* We have to do this here and in request_switch_user() because this
+         * function can be called at a later time, not just directly after
+         * request_switch_user(). */
+        if (_switch_user_is_locked_down (manager)) {
+                g_warning ("Unable to switch user: User switching has been locked down");
+                return;
+        }
 
-            error = NULL;
-            context = (GAppLaunchContext*) gdk_display_get_app_launch_context (display);
-            app = g_app_info_create_from_commandline (command, MDM_FLEXISERVER_COMMAND, 0, &error);
+        if (process_is_running("mdm")) {
+                command = g_strdup_printf ("%s %s",
+                                           MDM_FLEXISERVER_COMMAND,
+                                           MDM_FLEXISERVER_ARGS);
 
-            if (app) {
-                    g_app_info_launch (app, NULL, context, &error);
-                    g_object_unref (app);
-            }
+                error = NULL;
+                context = (GAppLaunchContext*) gdk_display_get_app_launch_context (display);
+                app = g_app_info_create_from_commandline (command, MDM_FLEXISERVER_COMMAND, 0, &error);
 
-            g_free (command);
-            g_object_unref (context);
+                if (app) {
+                        g_app_info_launch (app, NULL, context, &error);
+                        g_object_unref (app);
+                }
 
-            if (error) {
-                    g_debug ("CsmManager: Unable to start MDM greeter: %s", error->message);
-                    g_error_free (error);
-            }
-    }
-    else if (process_is_running("lightdm")) {
-        const gchar *xdg_seat_path = g_getenv ("XDG_SEAT_PATH");
-        if (xdg_seat_path != NULL) {
-            GDBusProxyFlags flags = G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START;
-            GDBusProxy *proxy = NULL;
-            error = NULL;
+                g_free (command);
+                g_object_unref (context);
 
-            proxy = g_dbus_proxy_new_for_bus_sync(G_BUS_TYPE_SYSTEM,
-                                                  flags,
-                                                  NULL,
-                                                  "org.freedesktop.DisplayManager",
-                                                  xdg_seat_path,
-                                                  "org.freedesktop.DisplayManager.Seat",
-                                                  NULL,
-                                                  &error);
-            if (proxy != NULL) {
-                    manager_perhaps_lock (manager);
-                    g_dbus_proxy_call (proxy,
-                                       "SwitchToGreeter",
-                                       g_variant_new ("()"),
-                                       G_DBUS_CALL_FLAGS_NONE,
-                                       -1,
-                                       NULL,
-                                       NULL,
-                                       NULL);
-                    g_object_unref (proxy);
-            }
-            else {
-                    g_debug ("GsmManager: Unable to start LightDM greeter: %s", error->message);
-                    g_error_free (error);
-            }
-        } 
-    }
+                if (error) {
+                        g_debug ("CsmManager: Unable to start MDM greeter: %s", error->message);
+                        g_error_free (error);
+                }
+        } else if (process_is_running("gdm")) {
+                command = g_strdup_printf ("%s %s",
+                                           GDM_FLEXISERVER_COMMAND,
+                                           GDM_FLEXISERVER_ARGS);
+
+                error = NULL;
+                context = (GAppLaunchContext*) gdk_display_get_app_launch_context (display);
+                app = g_app_info_create_from_commandline (command, GDM_FLEXISERVER_COMMAND, 0, &error);
+
+                if (app) {
+                        manager_perhaps_lock (manager);
+                        g_app_info_launch (app, NULL, context, &error);
+                        g_object_unref (app);
+                }
+
+                g_free (command);
+                g_object_unref (context);
+
+                if (error) {
+                        g_debug ("CsmManager: Unable to start GDM greeter: %s", error->message);
+                        g_error_free (error);
+                }
+        } else if (g_getenv ("XDG_SEAT_PATH")) {
+                GDBusProxyFlags flags = G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START;
+                GDBusProxy *proxy = NULL;
+                error = NULL;
+
+                proxy = g_dbus_proxy_new_for_bus_sync(G_BUS_TYPE_SYSTEM,
+                                                      flags,
+                                                      NULL,
+                                                      "org.freedesktop.DisplayManager",
+                                                      g_getenv ("XDG_SEAT_PATH"),
+                                                      "org.freedesktop.DisplayManager.Seat",
+                                                      NULL,
+                                                      &error);
+                if (proxy != NULL) {
+                        manager_perhaps_lock (manager);
+                        g_dbus_proxy_call (proxy,
+                                           "SwitchToGreeter",
+                                           g_variant_new ("()"),
+                                           G_DBUS_CALL_FLAGS_NONE,
+                                           -1,
+                                           NULL,
+                                           NULL,
+                                           NULL);
+                        g_object_unref (proxy);
+                } else {
+                        g_debug ("CsmManager: Unable to start LightDM greeter: %s", error->message);
+                        g_error_free (error);
+                }
+        }
 }
 
 static void
@@ -2154,6 +2177,48 @@ on_xsmp_client_register_request (CsmXSMPClient *client,
         *id = new_id;
 
         return handled;
+}
+
+static void
+_finished_playing_logout_sound (ca_context *c, uint32_t id, int error, void *userdata) 
+{
+    g_warning ("Finished playing logout sound");
+    CsmManager *manager = (CsmManager *) userdata;
+    manager->priv->logout_sound_is_playing = FALSE;    
+    g_warning ("Resuming logout sequence...");
+}
+
+static void
+maybe_play_logout_sound (CsmManager *manager)
+{
+    GSettings *settings = g_settings_new ("org.cinnamon.sounds");
+        gboolean enabled = g_settings_get_boolean(settings, "logout-enabled");
+        gchar *sound = g_settings_get_string (settings, "logout-file");
+        if (enabled) {
+            if (sound) {
+                if (g_file_test (sound, G_FILE_TEST_EXISTS)) {
+                    g_warning ("Playing logout sound '%s'", sound);
+                    manager->priv->logout_sound_is_playing = TRUE;
+                    ca_context_create (&manager->priv->ca);
+                    ca_context_set_driver (manager->priv->ca, "pulse");
+                    ca_context_change_props (manager->priv->ca, 0, CA_PROP_APPLICATION_ID, "org.gnome.VolumeControl", NULL);
+                    ca_proplist *proplist = NULL;
+                    ca_proplist_create(&proplist);
+                    ca_proplist_sets(proplist, CA_PROP_MEDIA_FILENAME, sound);
+                    int result = ca_context_play_full(manager->priv->ca, 0, proplist, _finished_playing_logout_sound, manager); 
+                    if (result != CA_SUCCESS) {
+                        g_warning ("Logout sound failed to play, skipping.");
+                        manager->priv->logout_sound_is_playing = FALSE;
+                    }
+                }
+            }
+        }
+        g_free(sound);
+        g_object_unref (settings);    
+
+        while (manager->priv->logout_sound_is_playing) {
+            sleep(1);
+        }
 }
 
 static void
