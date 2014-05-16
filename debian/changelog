@@ -1,9 +1,9 @@
-cinnamon-session (2.2.1-1) UNRELEASED; urgency=medium
+cinnamon-session (2.2.1-1~) UNRELEASED; urgency=medium
 
   * Update VCS fields.
   * New upstream release.
 
- -- Maximiliano Curia <maxy@debian.org>  Thu, 15 May 2014 16:54:47 +0200
+ -- Maximiliano Curia <maxy@debian.org>  Fri, 16 May 2014 20:17:40 +0200
 
 cinnamon-session (2.2.0-1) experimental; urgency=medium
 
