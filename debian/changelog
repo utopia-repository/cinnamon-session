@@ -1,7 +1,7 @@
 cinnamon-session (2.2.1-1~) UNRELEASED; urgency=medium
 
-  * Update VCS fields.
   * New upstream release.
+  * Update VCS fields.
   * Update build dependencies.
 
  -- Maximiliano Curia <maxy@debian.org>  Fri, 16 May 2014 20:17:40 +0200
