@@ -354,6 +354,18 @@ csm_logout_dialog_set_timeout (CsmLogoutDialog *logout_dialog)
                                                          logout_dialog);
 }
 
+static gboolean
+grab_callback (GtkWidget *widget)
+{
+    return gdk_keyboard_grab (gtk_widget_get_window (widget), FALSE, GDK_CURRENT_TIME) != GDK_GRAB_SUCCESS;
+}
+
+static void
+on_show (GtkWidget *widget, gpointer user_data)
+{
+    g_timeout_add (50, (GSourceFunc) grab_callback, widget);
+}
+
 static GtkWidget *
 csm_get_dialog (CsmDialogLogoutType type,
                 GdkScreen          *screen,
@@ -372,7 +384,7 @@ csm_get_dialog (CsmDialogLogoutType type,
 
         current_dialog = logout_dialog;
 
-        gtk_window_set_title (GTK_WINDOW (logout_dialog), "");
+        gtk_window_set_title (GTK_WINDOW (logout_dialog), _("Session"));
 
         logout_dialog->priv->type = type;
 
@@ -460,13 +472,15 @@ csm_get_dialog (CsmDialogLogoutType type,
         gtk_image_set_from_icon_name (GTK_IMAGE (dialog_image),
                                       icon_name, GTK_ICON_SIZE_DIALOG);
         gtk_window_set_icon_name (GTK_WINDOW (logout_dialog), icon_name);
-        gtk_window_set_position (GTK_WINDOW (logout_dialog), GTK_WIN_POS_CENTER_ALWAYS);
+        gtk_window_set_position (GTK_WINDOW (logout_dialog), GTK_WIN_POS_CENTER);
         gtk_message_dialog_set_markup (GTK_MESSAGE_DIALOG (logout_dialog), primary_text);
 
         gtk_dialog_set_default_response (GTK_DIALOG (logout_dialog),
                                          logout_dialog->priv->default_response);
 
         gtk_window_set_screen (GTK_WINDOW (logout_dialog), screen);
+
+        g_signal_connect (logout_dialog, "show", G_CALLBACK (on_show), NULL);
 
         return GTK_WIDGET (logout_dialog);
 }

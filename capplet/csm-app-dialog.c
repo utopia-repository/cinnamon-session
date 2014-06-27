@@ -68,7 +68,11 @@ G_DEFINE_TYPE (CsmAppDialog, csm_app_dialog, GTK_TYPE_DIALOG)
 gint
 char_to_int (const char *in)
 {
-    gint64 ret;
+    gint64 ret = 0;
+
+    if (in == NULL)
+        return (gint) ret;
+
     ret = g_ascii_strtoll (in, NULL, 10);
     if (ret > G_MAXINT || ret < G_MININT)
         ret = 0;
@@ -245,9 +249,8 @@ setup_dialog (CsmAppDialog *dialog)
                           "activate",
                           G_CALLBACK (on_entry_activate),
                           dialog);
-        if (dialog->priv->delay != NULL) {
-                gtk_spin_button_set_value (GTK_SPIN_BUTTON (dialog->priv->delay_spinner), char_to_int (dialog->priv->delay));
-        }
+
+        gtk_spin_button_set_value (GTK_SPIN_BUTTON (dialog->priv->delay_spinner), char_to_int (dialog->priv->delay));
 
         if (xml != NULL) {
                 g_object_unref (xml);
