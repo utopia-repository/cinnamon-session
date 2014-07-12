@@ -1,22 +1,14 @@
-cinnamon-session (2.2.2-3~) UNRELEASED; urgency=medium
-
-  * Added patch to use cinnamon-session-properties icon instead of
-    session-properties icon, present in gnome-session-common.
-
- -- Margarita Manterola <marga@debian.org>  Sat, 12 Jul 2014 18:22:33 +0200
-
-cinnamon-session (2.2.2-2) experimental; urgency=medium
-
-  * Added patch to expect translations on the standard path.
-
- -- Margarita Manterola <marga@debian.org>  Sat, 12 Jul 2014 16:22:48 +0200
-
 cinnamon-session (2.2.2-1) experimental; urgency=medium
 
   [ Fabio Fantoni ]
   * New upstream release.
 
- -- Margarita Manterola <marga@debian.org>  Sat, 12 Jul 2014 12:35:57 +0200
+  [ Margarita Manterola ]
+  * Added patch to expect translations on the standard path.
+  * Added patch to use cinnamon-session-properties icon instead of
+    session-properties icon, present in gnome-session-common.
+
+ -- Margarita Manterola <marga@debian.org>  Sat, 12 Jul 2014 18:22:33 +0200
 
 cinnamon-session (2.2.1-1) experimental; urgency=medium
 
