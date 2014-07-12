@@ -1,0 +1,19 @@
+Description: Fix desktop file to use the correct icon name
+Author: Margarita Manterola <marga@debian.org>
+Origin: vendor
+Forwarded: no
+Applied-Upstream: no
+Last-Update: 2014-07-12
+Index: cinnamon-session/data/cinnamon-session-properties.desktop.in.in
+===================================================================
+--- cinnamon-session.orig/data/cinnamon-session-properties.desktop.in.in	2014-05-24 15:43:03.537017622 +0200
++++ cinnamon-session/data/cinnamon-session-properties.desktop.in.in	2014-07-12 18:21:40.972421131 +0200
+@@ -2,7 +2,7 @@
+ _Name=Startup Applications
+ _Comment=Choose what applications to start when you log in
+ Exec=cinnamon-session-properties
+-Icon=session-properties
++Icon=cinnamon-session-properties
+ Terminal=false
+ Type=Application
+ StartupNotify=true
