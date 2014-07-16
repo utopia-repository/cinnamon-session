@@ -1,10 +1,11 @@
-cinnamon-session (2.2.2-2~1) UNRELEASED; urgency=medium
+cinnamon-session (2.2.2-2) unstable; urgency=medium
 
+  [ Margarita Manterola ]
   * Add systemd as a build dependency, needed for the upower-1.0 transition
     (Closes: #752421).
   * Remove ConsoleKit dependency, as we are using systemd now (Closes: #706573).
 
- -- Margarita Manterola <marga@debian.org>  Sun, 13 Jul 2014 17:01:05 +0200
+ -- Maximiliano Curia <maxy@debian.org>  Wed, 16 Jul 2014 11:20:58 +0200
 
 cinnamon-session (2.2.2-1) experimental; urgency=medium
 
