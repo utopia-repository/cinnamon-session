@@ -1,3 +1,10 @@
+cinnamon-session (2.2.2-3~) UNRELEASED; urgency=medium
+
+  * New patch: debian/patches/fix-user-switch, fixes user switching
+    with gdm3.
+
+ -- Fabio Fantoni <fantonifabio@tiscali.it>  Thu, 31 Jul 2014 11:40:36 +0200
+
 cinnamon-session (2.2.2-2) unstable; urgency=medium
 
   [ Margarita Manterola ]
