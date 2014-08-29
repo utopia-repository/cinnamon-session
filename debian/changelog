@@ -1,7 +1,11 @@
 cinnamon-session (2.2.2-3~) UNRELEASED; urgency=medium
 
+  [ Fabio Fantoni ]
   * New patch: debian/patches/fix-user-switch, fixes user switching
     with gdm3.
+
+  [ Margarita Manterola ]
+  * Only use systemd on linux, allows building on kFreeBSD.
 
  -- Fabio Fantoni <fantonifabio@tiscali.it>  Thu, 31 Jul 2014 11:40:36 +0200
 
