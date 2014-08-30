@@ -1,4 +1,4 @@
-cinnamon-session (2.2.2-3~) UNRELEASED; urgency=medium
+cinnamon-session (2.2.2-3) unstable; urgency=medium
 
   [ Fabio Fantoni ]
   * New patch: debian/patches/fix-user-switch, fixes user switching
@@ -7,7 +7,7 @@ cinnamon-session (2.2.2-3~) UNRELEASED; urgency=medium
   [ Margarita Manterola ]
   * Only use systemd on linux, allows building on kFreeBSD.
 
- -- Fabio Fantoni <fantonifabio@tiscali.it>  Thu, 31 Jul 2014 11:40:36 +0200
+ -- Margarita Manterola <marga@debian.org>  Sat, 30 Aug 2014 10:46:55 -0700
 
 cinnamon-session (2.2.2-2) unstable; urgency=medium
 
