@@ -1,3 +1,9 @@
+cinnamon-session (2.2.2-5~) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Maximiliano Curia <maxy@debian.org>  Mon, 06 Oct 2014 13:20:31 +0200
+
 cinnamon-session (2.2.2-4) unstable; urgency=medium
 
   * New patch: debian/patches/gtk3.14_incompatibilities.patch, fixes
