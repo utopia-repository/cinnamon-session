@@ -44,6 +44,8 @@ Depends: cinnamon-desktop-data,
          upower (>= 0.9.0),
          ${misc:Depends},
          ${shlibs:Depends}
+Breaks: cinnamon-session-common (<< 2.2.2-5~)
+Replaces: cinnamon-session-common (<< 2.2.2-5~)
 Description: Cinnamon Session Manager - Minimal runtime
  The Cinnamon Session Manager is in charge of starting the core components
  of the Cinnamon desktop, and applications that should be launched at
