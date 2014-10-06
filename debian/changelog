@@ -1,6 +1,6 @@
 cinnamon-session (2.2.2-5~) UNRELEASED; urgency=medium
 
-  * 
+  * Bump Standards-Version to 3.9.6, no changes needed
 
  -- Maximiliano Curia <maxy@debian.org>  Mon, 06 Oct 2014 13:20:31 +0200
 
