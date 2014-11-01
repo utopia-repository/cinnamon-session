@@ -2,7 +2,7 @@ Description: Fix code to expect translation files in the standard folder
 Author: Margarita Manterola <marga@debian.org>
 Origin: vendor
 Forwarded: no
-Applied-Upstream: no
+Applied-Upstream: yes
 Last-Update: 2014-07-12
 Index: cinnamon-session/capplet/main.c
 ===================================================================
