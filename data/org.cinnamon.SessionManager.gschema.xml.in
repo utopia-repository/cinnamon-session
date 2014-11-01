@@ -23,6 +23,6 @@
         being accessible during the session.  Note: gnome-settings-daemon, gnome-fallback-mount-helper,
         nautilus, and gnome-screensaver are hardcoded.  This list can add to those.
       </description>
-    </key>
+    </key>    
   </schema>
 </schemalist>

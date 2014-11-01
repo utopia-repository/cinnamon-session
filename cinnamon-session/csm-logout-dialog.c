@@ -39,9 +39,6 @@
 #define CSM_LOGOUT_DIALOG_GET_PRIVATE(o)                                \
         (G_TYPE_INSTANCE_GET_PRIVATE ((o), CSM_TYPE_LOGOUT_DIALOG, CsmLogoutDialogPrivate))
 
-/* Shared with csm-fail-whale-dialog.c */
-#define AUTOMATIC_ACTION_TIMEOUT 60
-
 #define LOCKDOWN_SCHEMA            "org.cinnamon.desktop.lockdown"
 #define KEY_DISABLE_USER_SWITCHING "disable-user-switching"
 
@@ -52,17 +49,11 @@ struct _CsmLogoutDialogPrivate
 #ifdef HAVE_OLD_UPOWER
         UpClient            *up_client;
 #endif
-        CsmSystem           *system;
-
-        int                  timeout;
-        unsigned int         timeout_id;
-
+        CsmSystem           *system;        
         unsigned int         default_response;
 };
 
 static CsmLogoutDialog *current_dialog = NULL;
-
-static void csm_logout_dialog_set_timeout  (CsmLogoutDialog *logout_dialog);
 
 static void csm_logout_dialog_destroy  (CsmLogoutDialog *logout_dialog,
                                         gpointer         data);
@@ -134,9 +125,7 @@ static void
 csm_logout_dialog_init (CsmLogoutDialog *logout_dialog)
 {
         logout_dialog->priv = CSM_LOGOUT_DIALOG_GET_PRIVATE (logout_dialog);
-
-        logout_dialog->priv->timeout_id = 0;
-        logout_dialog->priv->timeout = 0;
+     
         logout_dialog->priv->default_response = GTK_RESPONSE_CANCEL;
 
         gtk_window_set_skip_taskbar_hint (GTK_WINDOW (logout_dialog), TRUE);
@@ -163,11 +152,7 @@ csm_logout_dialog_init (CsmLogoutDialog *logout_dialog)
 static void
 csm_logout_dialog_destroy (CsmLogoutDialog *logout_dialog,
                            gpointer         data)
-{
-        if (logout_dialog->priv->timeout_id != 0) {
-                g_source_remove (logout_dialog->priv->timeout_id);
-                logout_dialog->priv->timeout_id = 0;
-        }
+{       
 
 #ifdef HAVE_OLD_UPOWER 
         if (logout_dialog->priv->up_client) {
@@ -242,116 +227,26 @@ csm_logout_supports_shutdown (CsmLogoutDialog *logout_dialog)
 
 static void
 csm_logout_dialog_show (CsmLogoutDialog *logout_dialog, gpointer user_data)
-{
-        csm_logout_dialog_set_timeout (logout_dialog);
-}
+{   
+    if (!csm_system_is_login_session (logout_dialog->priv->system)) {
+            gchar *name, *secondary_text;
 
-static gboolean
-csm_logout_dialog_timeout (gpointer data)
-{
-        CsmLogoutDialog *logout_dialog;
-        char            *seconds_warning;
-        char            *secondary_text;
-        int              seconds_to_show;
+            name = g_locale_to_utf8 (g_get_real_name (), -1, NULL, NULL, NULL);
 
-        logout_dialog = (CsmLogoutDialog *) data;
+            if (!name || name[0] == '\0' || strcmp (name, "Unknown") == 0) {
+                    g_free (name);
+                    name = g_locale_to_utf8 (g_get_user_name (), -1 , NULL, NULL, NULL);
+            }
 
-        if (!logout_dialog->priv->timeout) {
-                gtk_dialog_response (GTK_DIALOG (logout_dialog),
-                                     logout_dialog->priv->default_response);
+            if (!name) {
+                    name = g_strdup (g_get_user_name ());
+            }
 
-                return FALSE;
-        }
-
-        if (logout_dialog->priv->timeout <= 30) {
-                seconds_to_show = logout_dialog->priv->timeout;
-        } else {
-                seconds_to_show = (logout_dialog->priv->timeout/10) * 10;
-
-                if (logout_dialog->priv->timeout % 10)
-                        seconds_to_show += 10;
-        }
-
-        switch (logout_dialog->priv->type) {
-        case CSM_DIALOG_LOGOUT_TYPE_LOGOUT:
-                /* This string is shared with csm-fail-whale-dialog.c */
-                seconds_warning = ngettext ("You will be automatically logged "
-                                            "out in %d second.",
-                                            "You will be automatically logged "
-                                            "out in %d seconds.",
-                                            seconds_to_show);
-                break;
-
-        case CSM_DIALOG_LOGOUT_TYPE_SHUTDOWN:
-                seconds_warning = ngettext ("This system will be automatically "
-                                            "shut down in %d second.",
-                                            "This system will be automatically "
-                                            "shut down in %d seconds.",
-                                            seconds_to_show);
-                break;
-
-        case CSM_DIALOG_LOGOUT_TYPE_REBOOT:
-                seconds_warning = ngettext ("This system will be automatically "
-                                            "restarted in %d second.",
-                                            "This system will be automatically "
-                                            "restarted in %d seconds.",
-                                            seconds_to_show);
-                break;
-
-        default:
-                g_assert_not_reached ();
-        }
-
-        if (!csm_system_is_login_session (logout_dialog->priv->system)) {
-                char *name, *tmp;
-
-                name = g_locale_to_utf8 (g_get_real_name (), -1, NULL, NULL, NULL);
-
-                if (!name || name[0] == '\0' || strcmp (name, "Unknown") == 0) {
-                        name = g_locale_to_utf8 (g_get_user_name (), -1 , NULL, NULL, NULL);
-                }
-
-                if (!name) {
-                        name = g_strdup (g_get_user_name ());
-                }
-
-                tmp = g_strdup_printf (_("You are currently logged in as \"%s\"."), name);
-                secondary_text = g_strconcat (tmp, "\n", seconds_warning, NULL);
-                g_free (tmp);
-
-                g_free (name);
-	} else {
-		secondary_text = g_strdup (seconds_warning);
-	}
-
-        gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (logout_dialog),
-                                                  secondary_text,
-                                                  seconds_to_show,
-                                                  NULL);
-
-        logout_dialog->priv->timeout--;
-
-        g_free (secondary_text);
-
-        return TRUE;
-}
-
-static void
-csm_logout_dialog_set_timeout (CsmLogoutDialog *logout_dialog)
-{
-        logout_dialog->priv->timeout = AUTOMATIC_ACTION_TIMEOUT;
-
-        /* Sets the secondary text */
-        csm_logout_dialog_timeout (logout_dialog);
-
-        if (logout_dialog->priv->timeout_id != 0) {
-                g_source_remove (logout_dialog->priv->timeout_id);
-                logout_dialog->priv->timeout_id = 0;
-        }
-
-        logout_dialog->priv->timeout_id = g_timeout_add (1000,
-                                                         csm_logout_dialog_timeout,
-                                                         logout_dialog);
+            secondary_text = g_strdup_printf (_("You are currently logged in as \"%s\"."), name); 
+            gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (logout_dialog), secondary_text, NULL);               
+            g_free (secondary_text);        
+            g_free (name);        
+    }
 }
 
 static gboolean
@@ -373,6 +268,7 @@ csm_get_dialog (CsmDialogLogoutType type,
 {
         CsmLogoutDialog *logout_dialog;
         GtkWidget       *dialog_image;
+        GtkWidget       *hbox;
         const char      *primary_text;
         const char      *icon_name;
 
@@ -386,7 +282,7 @@ csm_get_dialog (CsmDialogLogoutType type,
 
         gtk_window_set_title (GTK_WINDOW (logout_dialog), _("Session"));
 
-        logout_dialog->priv->type = type;
+        logout_dialog->priv->type = type;       
 
         icon_name = NULL;
         primary_text = NULL;
@@ -466,8 +362,13 @@ csm_get_dialog (CsmDialogLogoutType type,
         default:
                 g_assert_not_reached ();
         }
-
+        
         dialog_image = gtk_message_dialog_get_image (GTK_MESSAGE_DIALOG (logout_dialog));
+        
+        hbox = gtk_box_new (FALSE, 0);
+        
+        gtk_widget_show_all (hbox);
+        gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (logout_dialog))), hbox);
 
         gtk_image_set_from_icon_name (GTK_IMAGE (dialog_image),
                                       icon_name, GTK_ICON_SIZE_DIALOG);
@@ -481,7 +382,7 @@ csm_get_dialog (CsmDialogLogoutType type,
         gtk_window_set_screen (GTK_WINDOW (logout_dialog), screen);
 
         g_signal_connect (logout_dialog, "show", G_CALLBACK (on_show), NULL);
-
+        
         return GTK_WIDGET (logout_dialog);
 }
 
