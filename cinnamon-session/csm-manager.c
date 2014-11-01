@@ -167,7 +167,7 @@ struct CsmManagerPrivate
         gboolean                dbus_disconnected : 1;
 
         ca_context             *ca;
-        gboolean               *logout_sound_is_playing;
+        gboolean               logout_sound_is_playing;
 
 };
 
@@ -1109,10 +1109,12 @@ static gboolean
 process_is_running (const char * name)
 {
         int num_processes;
-        char * command = g_strdup_printf ("pidof %s | wc -l", name);
+        gchar *command = g_strdup_printf ("pidof %s | wc -l", name);
         FILE *fp = popen(command, "r");
         fscanf(fp, "%d", &num_processes);
         pclose(fp);
+        g_free (command);
+
         if (num_processes > 0) {
                 return TRUE;
         } else {
@@ -1185,7 +1187,7 @@ manager_switch_user (GdkDisplay *display,
                         g_debug ("CsmManager: Unable to start MDM greeter: %s", error->message);
                         g_error_free (error);
                 }
-        } else if (process_is_running("gdm")) {
+        } else if (process_is_running("gdm") || process_is_running("gdm3")) {
                 command = g_strdup_printf ("%s %s",
                                            GDM_FLEXISERVER_COMMAND,
                                            GDM_FLEXISERVER_ARGS);
