@@ -1,9 +1,9 @@
-cinnamon-session (2.4.0-1~) UNRELEASED; urgency=medium
+cinnamon-session (2.4.1-1~) UNRELEASED; urgency=medium
 
   * New upstream release.
-  * debian/patches: removed 2 patches applied upstream.
+  * debian/patches: removed 3 patches applied upstream.
 
- -- Fabio Fantoni <fantonifabio@tiscali.it>  Sat, 01 Nov 2014 15:33:44 +0100
+ -- Fabio Fantoni <fantonifabio@tiscali.it>  Thu, 13 Nov 2014 13:00:09 +0100
 
 cinnamon-session (2.2.2-5) unstable; urgency=medium
 
