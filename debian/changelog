@@ -1,4 +1,4 @@
-cinnamon-session (2.4.1-1~) UNRELEASED; urgency=medium
+cinnamon-session (2.4.2-1~) UNRELEASED; urgency=medium
 
   * New upstream release.
   * debian/patches: removed 3 patches applied upstream.
