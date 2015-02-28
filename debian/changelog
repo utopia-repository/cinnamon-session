@@ -1,4 +1,4 @@
-cinnamon-session (2.4.3-1~) UNRELEASED; urgency=medium
+cinnamon-session (2.4.3-1) experimental; urgency=medium
 
   [ Fabio Fantoni ]
   * New upstream release.
@@ -7,7 +7,7 @@ cinnamon-session (2.4.3-1~) UNRELEASED; urgency=medium
   [ Maximiliano Curia ]
   * Update copyright information.
 
- -- Fabio Fantoni <fantonifabio@tiscali.it>  Thu, 13 Nov 2014 13:00:09 +0100
+ -- Maximiliano Curia <maxy@debian.org>  Sat, 28 Feb 2015 14:05:38 +0100
 
 cinnamon-session (2.2.2-5) unstable; urgency=medium
 
