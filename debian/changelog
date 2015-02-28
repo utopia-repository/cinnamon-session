@@ -1,7 +1,11 @@
 cinnamon-session (2.4.3-1~) UNRELEASED; urgency=medium
 
+  [ Fabio Fantoni ]
   * New upstream release.
   * debian/patches: removed 3 patches applied upstream.
+
+  [ Maximiliano Curia ]
+  * Update copyright information.
 
  -- Fabio Fantoni <fantonifabio@tiscali.it>  Thu, 13 Nov 2014 13:00:09 +0100
 
