@@ -39,7 +39,7 @@ Vcs-Git: git://anonscm.debian.org/pkg-cinnamon/cinnamon-session.git
 Package: cinnamon-session
 Architecture: any
 Depends: cinnamon-desktop-data,
-         cinnamon-session-common,
+         cinnamon-session-common (= ${source:Version}),
          dbus-x11,
          upower (>= 0.9.0),
          ${misc:Depends},
