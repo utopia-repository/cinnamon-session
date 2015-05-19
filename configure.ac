@@ -1,5 +1,5 @@
 AC_INIT([cinnamon-session],
-        [2.4.3],
+        [2.6.0],
         [https://github.com/linuxmint/cinnamon-session/issues])
 
 AC_CONFIG_SRCDIR([cinnamon-session])
@@ -33,11 +33,10 @@ if test "x$enable_deprecation_flags" = "xyes"; then
    AC_SUBST([DISABLE_DEPRECATED_CFLAGS])
 fi
 
-GLIB_REQUIRED=2.32
-GTK3_REQUIRED=2.90.7
-DBUS_GLIB_REQUIRED=0.76
+GLIB_REQUIRED=2.37.3
+GTK3_REQUIRED=3.0.0
+DBUS_GLIB_REQUIRED=0.88
 UPOWER_REQUIRED=0.9.0
-JSON_GLIB_REQUIRED=0.10
 
 dnl ====================================================================
 dnl Dependency Checks
@@ -52,7 +51,6 @@ PKG_CHECK_MODULES(CINNAMON_SESSION,
         gio-2.0 >= $GLIB_REQUIRED
         gtk+-3.0 >= $GTK3_REQUIRED
         dbus-glib-1 >= $DBUS_GLIB_REQUIRED
-        json-glib-1.0 >= $JSON_GLIB_REQUIRED
         libcanberra
 )
 
@@ -63,11 +61,6 @@ AS_IF([test x$have_old_upower = xyes], [
   AC_DEFINE([HAVE_OLD_UPOWER], [1], [Define if we have an older upower])
 ])
 AM_CONDITIONAL(HAVE_OLD_UPOWER, test x$have_old_upower = xyes)
-
-PKG_CHECK_MODULES(SESSION_PROPERTIES,
-        glib-2.0 >= $GLIB_REQUIRED
-        gtk+-3.0 >= $GTK3_REQUIRED
-)
 
 PKG_CHECK_MODULES(SM, sm)
 PKG_CHECK_MODULES(ICE, ice)
@@ -100,43 +93,17 @@ if test x$enable_gconf = xyes ; then
 fi
 
 dnl ====================================================================
-dnl Check for systemd
+dnl Check for logind
 dnl ====================================================================
-AC_ARG_ENABLE([systemd],
-              AS_HELP_STRING([--enable-systemd], [Use systemd]),
-              [enable_systemd=$enableval],
-              [enable_systemd=auto])
 
-PKG_CHECK_MODULES(SYSTEMD,
-                  [gio-unix-2.0 libsystemd-login >= 183 libsystemd-daemon],
-                  [have_systemd=yes], [have_systemd=no])
+PKG_CHECK_MODULES(LOGIND, [gio-unix-2.0 libsystemd-login >= 183], [have_logind=yes], [have_logind=no])
 
-AC_MSG_CHECKING([whether to use systemd])
-
-if test x$enable_systemd = xauto ; then
-        if test x$have_systemd = xno ; then
-                enable_systemd=no
-        else
-                enable_systemd=yes
-        fi
+if test x$have_logind = xyes; then
+    AC_DEFINE(HAVE_LOGIND, 1, [Define if logind is supported])
 fi
 
-AC_MSG_RESULT($enable_systemd)
-
-if test x$enable_systemd = xyes; then
-        if test x$have_systemd = xno; then
-                AC_MSG_ERROR([Systemd support explicitly required, but systemd not found])
-        fi
-        AC_DEFINE(HAVE_SYSTEMD, 1, [Define if systemd is used for session tracking])
-        session_tracking="systemd (with fallback to ConsoleKit)"
-else
-        session_tracking=ConsoleKit
-fi
-
-AC_SUBST(SYSTEMD_CFLAGS)
-AC_SUBST(SYSTEMD_LIBS)
-
-AM_CONDITIONAL(HAVE_SYSTEMD, [test "$with_systemd" = "yes"], [Using systemd])
+AC_SUBST(LOGIND_CFLAGS)
+AC_SUBST(LOGIND_LIBS)
 
 dnl ====================================================================
 dnl X development libraries check
@@ -336,13 +303,11 @@ dnl ============================================================================
 
 AC_CONFIG_FILES([
 Makefile
-capplet/Makefile
 doc/Makefile
 doc/dbus/Makefile
 doc/dbus/cinnamon-session.xml
 doc/man/Makefile
 data/Makefile
-data/cinnamon-session-properties.desktop.in
 data/org.cinnamon.SessionManager.gschema.xml
 data/icons/Makefile
 data/icons/16x16/Makefile
@@ -381,7 +346,7 @@ echo "
         Use *_DISABLE_DEPRECATED: ${enable_deprecation_flags}
 
         GConf support:            ${enable_gconf}
-        Session tracking:         ${session_tracking}
+        Logind support:           ${have_logind}
         IPv6 support:             ${have_full_ipv6}
         Backtrace support:        ${have_backtrace}
         XRender support:          ${have_xrender}

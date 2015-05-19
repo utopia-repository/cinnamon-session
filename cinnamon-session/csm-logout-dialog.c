@@ -185,26 +185,6 @@ csm_logout_dialog_destroy (CsmLogoutDialog *logout_dialog,
 }
 
 static gboolean
-csm_logout_supports_system_suspend (CsmLogoutDialog *logout_dialog)
-{
-#if defined(HAVE_SYSTEMD)
-        return csm_system_can_suspend (logout_dialog->priv->system);
-#elif defined(HAVE_OLD_UPOWER)
-        return up_client_get_can_suspend (logout_dialog->priv->up_client);
-#endif
-}
-
-static gboolean
-csm_logout_supports_system_hibernate (CsmLogoutDialog *logout_dialog)
-{
-#if defined(HAVE_SYSTEMD)
-        return csm_system_can_hibernate (logout_dialog->priv->system);
-#elif defined(HAVE_OLD_UPOWER)
-        return up_client_get_can_hibernate (logout_dialog->priv->up_client);
-#endif
-}
-
-static gboolean
 csm_logout_supports_switch_user (CsmLogoutDialog *logout_dialog)
 {
         GSettings *settings;
@@ -246,7 +226,13 @@ csm_logout_supports_shutdown (CsmLogoutDialog *logout_dialog)
 static void
 csm_logout_dialog_show (CsmLogoutDialog *logout_dialog, gpointer user_data)
 {
-        csm_logout_dialog_set_timeout (logout_dialog);
+        GSettings *settings = g_settings_new (SESSION_SCHEMA);
+        
+        if (g_settings_get_boolean (settings, KEY_TOGGLE_DELAY)) {
+            csm_logout_dialog_set_timeout (logout_dialog);
+        }
+        
+        g_object_unref(settings);
 }
 
 static gboolean
@@ -423,13 +409,13 @@ csm_get_dialog (CsmDialogLogoutType type,
 
                 logout_dialog->priv->default_response = CSM_LOGOUT_RESPONSE_SHUTDOWN;
 
-                if (csm_logout_supports_system_suspend (logout_dialog)) {
+                if (csm_system_can_suspend (logout_dialog->priv->system)) {
                         gtk_dialog_add_button (GTK_DIALOG (logout_dialog),
                                                _("S_uspend"),
                                                CSM_LOGOUT_RESPONSE_SLEEP);
                 }
 
-                if (csm_logout_supports_system_hibernate (logout_dialog)) {
+                if (csm_system_can_hibernate (logout_dialog->priv->system)) {
                         gtk_dialog_add_button (GTK_DIALOG (logout_dialog),
                                                _("_Hibernate"),
                                                CSM_LOGOUT_RESPONSE_HIBERNATE);
