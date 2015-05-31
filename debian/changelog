@@ -1,7 +1,11 @@
-cinnamon-session (2.6.0-1~) UNRELEASED; urgency=medium
+cinnamon-session (2.6.2-1~) UNRELEASED; urgency=medium
 
-  * New upstream release (2.6.0).
+  [ Maximiliano Curia ]
+  * New upstream release.
   * Update build dependencies.
+
+  [ Fabio Fantoni ]
+  * 
 
  -- Maximiliano Curia <maxy@debian.org>  Tue, 19 May 2015 17:20:03 +0200
 
