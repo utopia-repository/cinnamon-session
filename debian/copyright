@@ -137,8 +137,7 @@ Copyright: 1994-2013, Free Software Foundation
            2004-2009, Free Software Foundation, Inc
 License: Permissive
 
-Files: debian/po-up/tk.po
-       doc/dbus/spec-to-docbook.xsl
+Files: doc/dbus/spec-to-docbook.xsl
        po/tk.po
 Copyright: 2004, Free Software Foundation
            2004, Kakilik Project <kakilik.sourceforge.net>
