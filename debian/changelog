@@ -1,8 +1,11 @@
-cinnamon-session (2.6.3-1~) UNRELEASED; urgency=medium
+cinnamon-session (2.6.3-1) unstable; urgency=medium
 
+  [ Fabio Fantoni ]
   * New upstream release.
 
- -- Fabio Fantoni <fantonifabio@tiscali.it>  Sun, 14 Jun 2015 15:02:24 +0200
+  [ Maximiliano Curia ]
+
+ -- Maximiliano Curia <maxy@debian.org>  Thu, 18 Jun 2015 12:45:41 +0200
 
 cinnamon-session (2.6.2-1) unstable; urgency=medium
 
