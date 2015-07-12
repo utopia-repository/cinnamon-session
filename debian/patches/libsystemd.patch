@@ -1,0 +1,13 @@
+diff --git a/configure.ac b/configure.ac
+index a6b0ea4..a87221a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -96,7 +96,7 @@ dnl ====================================================================
+ dnl Check for logind
+ dnl ====================================================================
+ 
+-PKG_CHECK_MODULES(LOGIND, [gio-unix-2.0 libsystemd-login >= 183], [have_logind=yes], [have_logind=no])
++PKG_CHECK_MODULES(LOGIND, [gio-unix-2.0 libsystemd], [have_logind=yes], [have_logind=no])
+ 
+ if test x$have_logind = xyes; then
+     AC_DEFINE(HAVE_LOGIND, 1, [Define if logind is supported])
