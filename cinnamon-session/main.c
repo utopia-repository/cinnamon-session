@@ -45,7 +45,6 @@
 #include "csm-session-fill.h"
 #include "csm-store.h"
 #include "csm-system.h"
-#include "csm-xsmp-server.h"
 #include "csm-fail-whale-dialog.h"
 
 #define CSM_DBUS_NAME "org.gnome.SessionManager"
@@ -284,7 +283,6 @@ main (int argc, char **argv)
         char             *display_str;
         CsmManager       *manager;
         CsmStore         *client_store;
-        CsmXsmpServer    *xsmp_server;
         MdmSignalHandler *signal_handler;
         static char     **override_autostart_dirs = NULL;
         static char      *session_name = NULL;
@@ -307,6 +305,12 @@ main (int argc, char **argv)
         bindtextdomain (GETTEXT_PACKAGE, LOCALE_DIR);
         bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
         textdomain (GETTEXT_PACKAGE);
+
+        GSettings *settings = g_settings_new ("org.cinnamon.SessionManager");
+        if (g_settings_get_boolean (settings, "debug")) {
+            debug = TRUE;
+        }
+        g_object_unref(settings);
 
         sa.sa_handler = SIG_IGN;
         sa.sa_flags = 0;
@@ -378,6 +382,9 @@ main (int argc, char **argv)
         csm_util_setenv ("GNOME_DESKTOP_SESSION_ID", "this-is-deprecated");
         csm_util_setenv ("CLUTTER_BACKEND", "x11");
 
+        /* Make QT5 apps follow the GTK style */
+        csm_util_setenv ("QT_STYLE_OVERRIDE", "gtk");
+
         client_store = csm_store_new ();
 
         /* Talk to logind before acquiring a name, since it does synchronous
@@ -386,8 +393,6 @@ main (int argc, char **argv)
          * that main loop.
          */
         g_object_unref (csm_get_system ());
-
-        xsmp_server = csm_xsmp_server_new (client_store);
 
         if (!acquire_name ()) {
                 csm_fail_whale_dialog_we_failed (TRUE, TRUE);
@@ -415,14 +420,9 @@ main (int argc, char **argv)
                 csm_util_init_error (TRUE, "Failed to load session \"%s\"", session_name ? session_name : "(null)");
         }
 
-        csm_xsmp_server_start (xsmp_server);
         csm_manager_start (manager);
 
         gtk_main ();
-
-        if (xsmp_server != NULL) {
-                g_object_unref (xsmp_server);
-        }
 
         if (manager != NULL) {
                 g_debug ("Unreffing manager");
