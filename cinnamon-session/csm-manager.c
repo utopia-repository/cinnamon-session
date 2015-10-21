@@ -49,6 +49,7 @@
 #include "csm-inhibitor.h"
 #include "csm-presence.h"
 
+#include "csm-xsmp-server.h"
 #include "csm-xsmp-client.h"
 #include "csm-dbus-client.h"
 
@@ -78,6 +79,11 @@
  */
 #define CSM_MANAGER_PHASE_TIMEOUT 30 /* seconds */
 
+/* In the exit phase, all apps were already given the chance to inhibit the session end
+ * At that stage we don't want to wait much for apps to respond, we want to exit, and fast.
+ */
+#define CSM_MANAGER_EXIT_PHASE_TIMEOUT 1 /* seconds */
+
 #define MDM_FLEXISERVER_COMMAND "mdmflexiserver"
 #define MDM_FLEXISERVER_ARGS    "--startnew Standard"
 
@@ -92,8 +98,7 @@
 #define KEY_AUTOSAVE              "auto-save-session"
 #define KEY_LOGOUT_PROMPT         "logout-prompt"
 #define KEY_SHOW_FALLBACK_WARNING "show-fallback-warning"
-#define KEY_BLACKLIST             "blacklist"
-#define KEY_WHITELIST             "whitelist"
+#define KEY_BLACKLIST             "autostart-blacklist"
 
 #define SCREENSAVER_SCHEMA        "org.cinnamon.desktop.screensaver"
 #define KEY_SLEEP_LOCK            "lock-enabled"
@@ -101,19 +106,6 @@
 #define LOCKDOWN_SCHEMA           "org.cinnamon.desktop.lockdown"
 #define KEY_DISABLE_LOG_OUT       "disable-log-out"
 #define KEY_DISABLE_USER_SWITCHING "disable-user-switching"
-
-const gchar *blacklist[] = {
-                            "gnome-settings-daemon",
-                            "gnome-fallback-mount-helper",
-                            "gnome-screensaver",
-                            "mate-screensaver",
-                            "mate-keyring-daemon",
-                            "indicator-",
-                            "gnome-initial-setup-copy-worker",
-                            "gnome-initial-setup-first-login",
-                            "gnome-welcome-tour",
-                            "xscreensaver-autostart"
-                           };
 
 static void app_registered (CsmApp     *app, CsmManager *manager);
 
@@ -137,6 +129,7 @@ struct CsmManagerPrivate
         CsmInhibitorFlag        inhibited_actions;
         CsmStore               *apps;
         CsmPresence            *presence;
+        CsmXsmpServer          *xsmp_server;
 
         char                   *session_name;
         gboolean                is_fallback_session : 1;
@@ -957,7 +950,7 @@ static void
 do_phase_exit (CsmManager *manager)
 {
         if (csm_store_size (manager->priv->clients) > 0) {
-                manager->priv->phase_timeout_id = g_timeout_add_seconds (CSM_MANAGER_PHASE_TIMEOUT,
+                manager->priv->phase_timeout_id = g_timeout_add_seconds (CSM_MANAGER_EXIT_PHASE_TIMEOUT,
                                                                          (GSourceFunc)on_phase_timeout,
                                                                          manager);
 
@@ -1621,10 +1614,12 @@ start_phase (CsmManager *manager)
                 do_phase_startup (manager);
                 break;
         case CSM_MANAGER_PHASE_RUNNING:
+                csm_xsmp_server_start_accepting_new_clients (manager->priv->xsmp_server);
                 g_signal_emit (manager, signals[SESSION_RUNNING], 0);
                 update_idle (manager);
                 break;
         case CSM_MANAGER_PHASE_QUERY_END_SESSION:
+                csm_xsmp_server_stop_accepting_new_clients (manager->priv->xsmp_server);
                 do_phase_query_end_session (manager);
                 break;
         case CSM_MANAGER_PHASE_END_SESSION:
@@ -1683,6 +1678,7 @@ csm_manager_start (CsmManager *manager)
 
         g_return_if_fail (CSM_IS_MANAGER (manager));
 
+        csm_xsmp_server_start (manager->priv->xsmp_server);
         csm_manager_set_phase (manager, CSM_MANAGER_PHASE_INITIALIZATION);
         debug_app_summary (manager);
         start_phase (manager);
@@ -2416,8 +2412,12 @@ on_store_client_added (CsmStore   *store,
                           G_CALLBACK (on_client_end_session_response),
                           manager);
 
+        g_signal_connect (client,
+                          "disconnected",
+                          G_CALLBACK (on_client_disconnected),
+                          manager);
+
         g_signal_emit (manager, signals [CLIENT_ADDED], 0, id);
-        /* FIXME: disconnect signal handler */
 }
 
 static void
@@ -2457,6 +2457,11 @@ csm_manager_set_client_store (CsmManager *manager,
         manager->priv->clients = store;
 
         if (manager->priv->clients != NULL) {
+            if (manager->priv->xsmp_server)
+                    g_object_unref (manager->priv->xsmp_server);
+
+                manager->priv->xsmp_server = csm_xsmp_server_new (store);
+
                 g_signal_connect (manager->priv->clients,
                                   "added",
                                   G_CALLBACK (on_store_client_added),
@@ -2658,6 +2663,8 @@ csm_manager_dispose (GObject *object)
         CsmManager *manager = CSM_MANAGER (object);
 
         g_debug ("CsmManager: disposing manager");
+
+        g_clear_object (&manager->priv->xsmp_server);
 
         if (manager->priv->clients != NULL) {
                 g_signal_handlers_disconnect_by_func (manager->priv->clients,
@@ -4137,14 +4144,10 @@ csm_manager_get_app_is_blacklisted (CsmManager *manager,
     g_return_val_if_fail (CSM_IS_MANAGER (manager), FALSE);
 
     gchar **gs_blacklist = g_settings_get_strv(manager->priv->settings, KEY_BLACKLIST);
-    gchar **gs_whitelist = g_settings_get_strv(manager->priv->settings, KEY_WHITELIST);
     GList *list = NULL;
     gboolean ret = FALSE;
 
     int i;
-    for (i = 0; i < G_N_ELEMENTS (blacklist); i++)
-        list = g_list_append (list, g_strdup (blacklist[i]));
-
     for (i = 0; i < g_strv_length (gs_blacklist); i++)
         list = g_list_append (list, g_strdup (gs_blacklist[i]));
 
@@ -4158,19 +4161,8 @@ csm_manager_get_app_is_blacklisted (CsmManager *manager,
         }
     }
 
-    if (ret) {
-        for (i = 0; i < g_strv_length (gs_whitelist); i++) {
-            gchar *ptr = g_strstr_len (name, -1, gs_whitelist[i]);
-            if (ptr != NULL) {
-                ret = FALSE;
-                break;
-            }
-        }
-    }
-
     g_list_free_full (list, g_free);
     g_strfreev (gs_blacklist);
-    g_strfreev (gs_whitelist);
     return ret;
 }
 
