@@ -1,10 +1,11 @@
-cinnamon-session (2.8.0-1~) UNRELEASED; urgency=medium
+cinnamon-session (2.8.2-1~) UNRELEASED; urgency=medium
 
   * Add a provides for x-session-manager. (Closes: #800506) Thanks to
     Ralf Jung
   * New upstream release (2.8.0).
+  * New upstream release (2.8.2).
 
- -- Maximiliano Curia <maxy@debian.org>  Wed, 21 Oct 2015 12:58:59 +0200
+ -- Maximiliano Curia <maxy@debian.org>  Tue, 10 Nov 2015 15:42:51 +0100
 
 cinnamon-session (2.6.3-2) unstable; urgency=medium
 
