@@ -1,3 +1,9 @@
+cinnamon-session (2.8.3-1~) UNRELEASED; urgency=medium
+
+  * New upstream release.
+
+ -- Fabio Fantoni <fantonifabio@tiscali.it>  Sun, 13 Mar 2016 12:25:54 +0100
+
 cinnamon-session (2.8.2-1) unstable; urgency=medium
 
   * Add a provides for x-session-manager. (Closes: #800506) Thanks to
