@@ -1,5 +1,5 @@
 AC_INIT([cinnamon-session],
-        [2.8.3],
+        [3.0.0],
         [https://github.com/linuxmint/cinnamon-session/issues])
 
 AC_CONFIG_SRCDIR([cinnamon-session])
@@ -96,7 +96,9 @@ dnl ====================================================================
 dnl Check for logind
 dnl ====================================================================
 
-PKG_CHECK_MODULES(LOGIND, [gio-unix-2.0 libsystemd-login >= 183], [have_logind=yes], [have_logind=no])
+PKG_CHECK_MODULES(LOGIND, [gio-unix-2.0 libsystemd-login], [have_logind=yes], [
+ PKG_CHECK_MODULES(LOGIND, [gio-unix-2.0 libsystemd], [have_logind=yes], [have_logind=no])
+])
 
 if test x$have_logind = xyes; then
     AC_DEFINE(HAVE_LOGIND, 1, [Define if logind is supported])
