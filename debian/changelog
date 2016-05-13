@@ -1,8 +1,12 @@
-cinnamon-session (3.0.0-1~) UNRELEASED; urgency=medium
+cinnamon-session (3.0.0-1) unstable; urgency=medium
 
   * New upstream release (3.0.0).
+  * debian/control: Update Vcs-Browser and Vcs-Git fields
+  * Add a .gitattributes file to use dpkg-mergechangelogs
+  * Bump Standards-Version to 3.9.8
+  * Drop upstream applied patch
 
- -- Maximiliano Curia <maxy@debian.org>  Thu, 05 May 2016 08:05:28 +0200
+ -- Maximiliano Curia <maxy@debian.org>  Fri, 13 May 2016 13:02:22 +0200
 
 cinnamon-session (2.8.3-1) unstable; urgency=medium
 
