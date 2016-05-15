@@ -1,3 +1,10 @@
+cinnamon-session (3.0.0-2) unstable; urgency=medium
+
+  * The new cinnamon session breaks the old cinnamon.
+    Thanks to George Shuklin for reporting (Closes: 824269)
+
+ -- Maximiliano Curia <maxy@debian.org>  Sun, 15 May 2016 13:07:25 +0200
+
 cinnamon-session (3.0.0-1) unstable; urgency=medium
 
   * New upstream release (3.0.0).
