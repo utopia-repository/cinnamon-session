@@ -1,3 +1,13 @@
+cinnamon-session (3.0.0-3) unstable; urgency=medium
+
+  * Apply 96f25057cac202e13c338886d00bc0383394ad26 from upstream to let the
+    gtk-overlay-scrollbar setting disable scrollbars. (Closes: 824699).
+    Thanks to Christoph Anton Mitterer for reporting.
+  * Depend on the new cinnamon-desktop version, as this needs to have the new
+    schemas in place.
+
+ -- Margarita Manterola <marga@debian.org>  Wed, 18 May 2016 22:18:59 +0200
+
 cinnamon-session (3.0.0-2) unstable; urgency=medium
 
   * The new cinnamon session breaks the old cinnamon.
