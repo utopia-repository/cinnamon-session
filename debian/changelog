@@ -1,3 +1,10 @@
+cinnamon-session (3.0.0-4) UNRELEASED; urgency=medium
+
+  * Fix the Breaks clause so that it's only for cinnamon strictly smaller than
+    version 3. (Closes: 825048). Thanks to Jeremy Bicha for reporting.
+
+ -- Margarita Manterola <marga@debian.org>  Fri, 27 May 2016 22:28:15 +0200
+
 cinnamon-session (3.0.0-3) unstable; urgency=medium
 
   * Apply 96f25057cac202e13c338886d00bc0383394ad26 from upstream to let the
