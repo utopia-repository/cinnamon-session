@@ -3,6 +3,7 @@ cinnamon-session (3.0.1-1) UNRELEASED; urgency=medium
   * Fix the Breaks clause so that it's only for cinnamon strictly smaller than
     version 3. (Closes: 825048). Thanks to Jeremy Bicha for reporting.
   * New upstream release.
+    Remove overlay scrollbars patch as it's applied upstream.
 
  -- Margarita Manterola <marga@debian.org>  Sat, 28 May 2016 15:54:29 +0200
 
