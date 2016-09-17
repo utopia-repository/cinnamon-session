@@ -5,9 +5,9 @@ Maintainer: Debian Cinnamon Team <pkg-cinnamon-team@lists.alioth.debian.org>
 Uploaders: Maximiliano Curia <maxy@debian.org>,
            Margarita Manterola <marga@debian.org>,
            Fabio Fantoni <fantonifabio@tiscali.it>
-Build-Depends: debhelper (>= 9),
+Build-Depends: autoconf-archive,
+               debhelper (>= 9),
                dh-autoreconf,
-               gnome-common,
                gnome-pkg-tools (>= 0.13),
                intltool (>= 0.40.6),
                libcanberra-dev,
