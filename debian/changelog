@@ -1,6 +1,6 @@
 cinnamon-session (3.0.1-2~) UNRELEASED; urgency=medium
 
-  * Add new patch: Migrate-away-from-gnome-common-deprecated-vars-and-macros.patch
+  * Add new patch: gnome-common-deprecation.patch (Closes: #829886)
   * Update build dependencies.
   * Update the copyright file
   * Switch to default-dbus-session-bus | dbus-session-bus.
