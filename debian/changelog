@@ -1,12 +1,13 @@
-cinnamon-session (3.0.1-2~) UNRELEASED; urgency=medium
+cinnamon-session (3.0.1-2) unstable; urgency=medium
 
+  [ Maximiliano Curia ]
   * Add new patch: gnome-common-deprecation.patch (Closes: #829886)
   * Update build dependencies (add autoconf-archive, remove gnome-common).
   * Update the copyright file
   * Switch to default-dbus-session-bus | dbus-session-bus.
     Thanks to Simon McVittie for reporting (Closes: 835844)
 
- -- Maximiliano Curia <maxy@gnuservers.com.ar>  Mon, 17 Oct 2016 20:11:35 +0200
+ -- Margarita Manterola <marga@debian.org>  Mon, 17 Oct 2016 20:28:39 +0200
 
 cinnamon-session (3.0.1-1) unstable; urgency=medium
 
