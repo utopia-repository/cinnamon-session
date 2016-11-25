@@ -12,7 +12,8 @@ override_dh_autoreconf:
 override_dh_auto_configure:
 	dh_auto_configure -- \
 	    --localstatedir=/var/lib \
-	    --enable-ipv6
+	    --enable-ipv6 \
+	    --enable-qt57-theme-support
 
 override_dh_install:
 	dh_install --list-missing
