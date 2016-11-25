@@ -1,3 +1,13 @@
+cinnamon-session (3.0.1-2utopia1) unstable; urgency=medium
+
+  * Utopia Repository upload.
+  * Backport https://github.com/linuxmint/cinnamon-session/pull/75 to fix
+    GTK+ theme support on Qt 5.7.
+  * Add --enable-qt57-theme-support to compile options, and Breaks on
+    libqt5gui5 (<< 5.7~).
+
+ -- James Lu <bitflip3@gmail.com>  Thu, 24 Nov 2016 22:30:57 -0800
+
 cinnamon-session (3.0.1-2) unstable; urgency=medium
 
   [ Maximiliano Curia ]
