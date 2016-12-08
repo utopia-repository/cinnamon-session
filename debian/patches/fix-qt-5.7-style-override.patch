@@ -1,24 +1,8 @@
-From f954aa4c5a92b0215797732ecbd6995f68d856a4 Mon Sep 17 00:00:00 2001
-From: Dustin Falgout <dustin@falgout.us>
-Date: Sat, 9 Jul 2016 19:22:39 -0500
-Subject: [PATCH 1/6] update .gitignore
+Description: Make QT5 apps follow the GTK style on Qt >= 5.7
+Origin: upstream, https://github.com/linuxmint/cinnamon-session/pull/75
+Last-Update: 2016-12-08
+Bug: https://github.com/linuxmint/Cinnamon/issues/5440
 
----
- .gitignore | 4 ++++
- 1 file changed, 4 insertions(+)
-
-Index: cinnamon-session/.gitignore
-===================================================================
---- cinnamon-session.orig/.gitignore	2016-11-24 22:33:52.233384319 -0800
-+++ cinnamon-session/.gitignore	2016-11-24 22:33:52.229384394 -0800
-@@ -41,3 +41,7 @@
- *.old
- *.bak
- 
-+## IDE files ##
-+.idea
-+CMakeLists.txt
-+
 Index: cinnamon-session/cinnamon-session/main.c
 ===================================================================
 --- cinnamon-session.orig/cinnamon-session/main.c	2016-11-24 22:33:52.233384319 -0800
