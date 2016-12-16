@@ -1,6 +1,8 @@
 cinnamon-session (3.2.0-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * Add patch to use the "gtk2" theme engine when running under qt5.
+    Thanks to James Lu for reporting. (Closes: #847482)
 
  -- Margarita Manterola <marga@debian.org>  Sat, 19 Nov 2016 12:27:25 +0100
 

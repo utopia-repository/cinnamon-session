@@ -1,1 +1,2 @@
 gnome-common-deprecation.patch
+use_gtk2_with_qt.patch
