@@ -1,3 +1,10 @@
+cinnamon-session (3.2.0-2) experimental; urgency=medium
+
+  * Explicitly depend on automake, as some buildds sometimes pull automaken
+    instead, causing build failures.
+
+ -- Margarita Manterola <marga@debian.org>  Sat, 17 Dec 2016 16:43:06 -0300
+
 cinnamon-session (3.2.0-1) experimental; urgency=medium
 
   [ Margarita Manterola ]
