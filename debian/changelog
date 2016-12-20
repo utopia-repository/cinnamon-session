@@ -1,3 +1,9 @@
+cinnamon-session (3.2.0-3) unstable; urgency=medium
+
+  * Release to unstable
+
+ -- Margarita Manterola <marga@debian.org>  Tue, 20 Dec 2016 19:50:19 -0300
+
 cinnamon-session (3.2.0-2) experimental; urgency=medium
 
   * Explicitly depend on automake, as some buildds sometimes pull automaken
