@@ -1,10 +1,12 @@
 AC_INIT([cinnamon-session],
-        [3.0.1],
+        [3.2.0],
         [https://github.com/linuxmint/cinnamon-session/issues])
 
 AC_CONFIG_SRCDIR([cinnamon-session])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
+
+m4_ifdef([AX_IS_RELEASE], [AX_IS_RELEASE([always])])
 
 AM_INIT_AUTOMAKE([1.11 no-dist-gzip dist-xz tar-ustar])
 
@@ -20,8 +22,8 @@ PKG_PROG_PKG_CONFIG()
 LT_PREREQ([2.2.6])
 LT_INIT([dlopen disable-static])
 
-GNOME_MAINTAINER_MODE_DEFINES
-GNOME_COMPILE_WARNINGS([maximum])
+m4_ifdef([AX_COMPILER_FLAGS],
+         [AX_COMPILER_FLAGS([WARN_CFLAGS],[WARN_LDFLAGS])])
 
 AC_ARG_ENABLE(deprecation_flags,
               [AS_HELP_STRING([--enable-deprecation-flags],
@@ -108,6 +110,20 @@ AC_SUBST(LOGIND_CFLAGS)
 AC_SUBST(LOGIND_LIBS)
 
 dnl ====================================================================
+dnl Check for qt 5.7+ to set correct env var for theme/styling
+dnl ====================================================================
+AC_ARG_ENABLE(qt57_theme_support,
+              AS_HELP_STRING([--enable-qt57-theme-support], [Support GTK styles for QT apps with QT 5.7+]),
+              [enable_qt57_theme_support=yes],
+              [enable_qt57_theme_support=no])
+
+if test x$enable_qt57_theme_support = xyes; then
+    AC_DEFINE([HAVE_QT57], [1], [Have QT 5.7+])
+else
+    AC_DEFINE([HAVE_QT57], [0], [Have QT 5.7+])
+fi
+
+dnl ====================================================================
 dnl X development libraries check
 dnl ====================================================================
 
@@ -141,7 +157,7 @@ fi
 AC_CHECK_LIB(Xau, XauFileName, [X_LIBS="$X_LIBS -lXau"],
              [AC_MSG_ERROR([
 *** Can't find the Xauth library. It is needed to compile cinnamon-session.])],
-	     $X_LIBS)
+             $X_LIBS)
 
 AC_SUBST(X_LIBS)
 
@@ -194,21 +210,21 @@ AC_ARG_ENABLE(docbook-docs,
 AC_PATH_PROG(XMLTO, xmlto, no)
 AC_MSG_CHECKING([whether to build DocBook documentation])
 if test x$XMLTO = xno ; then
-	have_docbook=no
+    have_docbook=no
 else
-	have_docbook=yes
+    have_docbook=yes
 fi
 if test x$enable_docbook_docs = xauto ; then
-	if test x$have_docbook = xno ; then
-        	enable_docbook_docs=no
-	else
-		enable_docbook_docs=yes
-	fi
+    if test x$have_docbook = xno ; then
+        enable_docbook_docs=no
+    else
+        enable_docbook_docs=yes
+    fi
 fi
 if test x$enable_docbook_docs = xyes; then
-	if test x$have_docbook = xno; then
-		AC_MSG_ERROR([Building DocBook docs explicitly required, but DocBook not found])
-	fi
+    if test x$have_docbook = xno; then
+        AC_MSG_ERROR([Building DocBook docs explicitly required, but DocBook not found])
+    fi
 fi
 AM_CONDITIONAL(DOCBOOK_DOCS_ENABLED, test x$enable_docbook_docs = xyes)
 AC_MSG_RESULT($enable_docbook_docs)
@@ -349,12 +365,13 @@ echo "
 
         GConf support:            ${enable_gconf}
         Logind support:           ${have_logind}
+        Qt 5.7+ theme support:    ${enable_qt57_theme_support}
         IPv6 support:             ${have_full_ipv6}
         Backtrace support:        ${have_backtrace}
         XRender support:          ${have_xrender}
         XSync support:            ${have_xsync}
         XTest support:            ${have_xtest}
-	Legacy UPower backend:    ${have_old_upower}
+        Legacy UPower backend:    ${have_old_upower}
         Build documentation:      ${enable_docbook_docs}
 
 "

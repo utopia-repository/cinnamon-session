@@ -1,0 +1,17 @@
+Description: Use gtk2 engine when using QT5
+ Stretch will not include qt5ct, so we use gtk2 instead
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+Index: cinnamon-session/cinnamon-session/main.c
+===================================================================
+--- cinnamon-session.orig/cinnamon-session/main.c	2016-11-19 08:27:25.230782368 -0300
++++ cinnamon-session/cinnamon-session/main.c	2016-12-16 19:54:29.464641032 -0300
+@@ -388,7 +388,7 @@
+         /* Make QT5 apps follow the GTK style. Starting with QT 5.7, a different
+          * env var has to be set than what worked in previous versions.
+          */
+-        qt_platform_theme_new = HAVE_QT57 ? "qt5ct" : "qgnomeplatform";
++        qt_platform_theme_new = HAVE_QT57 ? "gtk2" : "qgnomeplatform";
+ 
+         if (NULL == g_getenv ("QT_QPA_PLATFORMTHEME")) {
+             csm_util_setenv ("QT_QPA_PLATFORMTHEME", qt_platform_theme_new);

@@ -1,3 +1,28 @@
+cinnamon-session (3.2.0-3) unstable; urgency=medium
+
+  * Release to unstable
+
+ -- Margarita Manterola <marga@debian.org>  Tue, 20 Dec 2016 19:50:19 -0300
+
+cinnamon-session (3.2.0-2) experimental; urgency=medium
+
+  * Explicitly depend on automake, as some buildds sometimes pull automaken
+    instead, causing build failures.
+
+ -- Margarita Manterola <marga@debian.org>  Sat, 17 Dec 2016 16:43:06 -0300
+
+cinnamon-session (3.2.0-1) experimental; urgency=medium
+
+  [ Margarita Manterola ]
+  * New upstream release.
+  * Add patch to use the "gtk2" theme engine when running under qt5.
+    Thanks to James Lu for reporting. (Closes: #847482)
+
+  [ Maximiliano Curia ]
+  * Drop upstream applied patch: gnome-common-deprecation.patch
+
+ -- Maximiliano Curia <maxy@debian.org>  Sat, 17 Dec 2016 19:02:35 +0100
+
 cinnamon-session (3.0.1-2utopia1) unstable; urgency=medium
 
   * Utopia Repository upload.

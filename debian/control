@@ -8,6 +8,7 @@ Uploaders:
  Fabio Fantoni <fantonifabio@tiscali.it>
 Build-Depends:
  autoconf-archive,
+ automake,
  debhelper (>= 9),
  dh-autoreconf,
  gnome-pkg-tools (>= 0.13),
