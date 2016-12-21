@@ -1,3 +1,11 @@
+cinnamon-session (3.2.0-3utopia1) unstable; urgency=medium
+
+  * Utopia Repository upload.
+  * Merge from Debian. Remaining changes:
+    - Disable use_gtk2_with_qt.patch to prefer qt5ct instead.
+
+ -- James Lu <bitflip3@gmail.com>  Wed, 21 Dec 2016 12:42:40 -0800
+
 cinnamon-session (3.2.0-3) unstable; urgency=medium
 
   * Release to unstable
